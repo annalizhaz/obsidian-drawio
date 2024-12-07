@@ -1,0 +1,9 @@
+{
+    "id": "obsidian-drawio",
+    "name": "Draw.io Integration",
+    "version": "1.0.0",
+    "minAppVersion": "0.15.0",
+    "description": "Integrate Draw.io diagram editor into Obsidian",
+    "author": "Your Name",
+    "isDesktopOnly": false
+}

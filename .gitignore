@@ -1,0 +1,15 @@
+# Build output
+dist/
+main.js
+data.json
+versions.json
+
+# Dependencies
+node_modules/
+
+# IDE files
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
