@@ -6,9 +6,11 @@
     "scripts": {
       "dev": "rollup --config rollup.config.js -w",
       "build": "rollup --config rollup.config.js",
-      "clean": "rimraf main.js",
-      "clean-build": "npm run clean && npm run build",
-      "deploy": "node deploy.js"
+      "deploy": "node deploy.js",
+      "clean": "rimraf main.js package-lock.json node_modules",
+      "clean-install": "rimraf package-lock.json node_modules && npm install",
+      "clean-build": "rimraf main.js && npm run build",
+      "clean-deploy": "npm run clean-install && npm run clean-build  && node deploy.js"
     },
     "keywords": [],
     "author": "",
