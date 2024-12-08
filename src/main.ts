@@ -229,7 +229,7 @@ export default class DrawioPlugin extends Plugin {
                 }
             }
             
-            const fileName = `${folderPath ? folderPath + '/' : ''}diagram-${Date.now()}.drawio`;
+            const fileName = `${folderPath ? folderPath + '/' : ''}diagram ${Date.now()}.drawio`;
             const newFile = await this.app.vault.create(fileName, this.EMPTY_DIAGRAM);
             const leaf = this.app.workspace.getLeaf(true);
             
@@ -301,7 +301,6 @@ class DrawioView extends ItemView {
             saveAndExit: '0',
             noExitBtn: '1',
             ui: currentTheme,
-            sketch: '1',
             pageShow: '0'
         });
 
