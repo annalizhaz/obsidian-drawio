@@ -136,7 +136,7 @@ export default class DrawioPlugin extends Plugin {
     private EMPTY_DIAGRAM = `<?xml version="1.0" encoding="UTF-8"?>
 <mxfile host="Electron" modified="2024-12-07T12:00:00.000Z" agent="Obsidian Draw.io" version="21.1.2">
   <diagram id="default-diagram" name="Page-1">
-    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100">
       <root>
         <mxCell id="0"/>
         <mxCell id="1" parent="0"/>
@@ -236,7 +236,9 @@ class DrawioView extends ItemView {
             proto: 'json',
             saveAndExit: '0',
             noExitBtn: '1',
-            ui: currentTheme
+            ui: currentTheme,
+            sketch: '1',
+            pageShow: '0'
         });
 
         this.contentEl.empty();
