@@ -7,7 +7,8 @@
     "dev": "rollup --config rollup.config.js -w",
     "build": "rollup --config rollup.config.js",
     "clean": "rimraf main.js",
-    "clean-build": "npm run clean && npm run build"
+    "clean-build": "npm run clean && npm run build",
+    "deploy": "node deploy.js"
   },
   "keywords": [],
   "author": "",

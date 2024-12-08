@@ -11,14 +11,14 @@ This repository contains the source code for a plugin that integrates the [Draw.
 1. Clone the repository: `git clone https://github.com/your-username/obsidian-drawio.git`
 2. Navigate to the project directory: `cd obsidian-drawio`
 3. Install the dependencies: `npm install`
-4. Build the plugin: `npm run clean-build`
-5. Copy the built plugin to your Obsidian plugins directory in your root vault directory.
-    - e.g., `~/.obsidian/plugins/obsidian-drawio` where obsidian-drawio is the name of the newly created directory conataining this plugin
+4. Modify the deploy-config.template.js to reflect the location of your Obsidian vault and your operating system.
+5. Copy the deploy-config.template.js to deploy-config.js via the commandline: `cp deploy-config.template.js deploy-config.js`
+6. To just the build the plugin, run `npm run clean-build`. Otherwise to build and deploy the plugin to your plugin directory, run `npm run deploy`.
 ## Usage
 1. Open Obsidian and navigate to Community Plugins within the settings.
-2. Enable "Draw.io Integration" plugin under the "Insalled" heading.
-2. Configure the plugin according to your preferences.
-3. Start creating and editing diagrams within Obsidian.
+2. Enable "Draw.io Integration" plugin under the "Insalled" heading (you may need to refresh the available plugins list).
+3. Configure the plugin according to your preferences.
+4. Start creating and editing diagrams within Obsidian.
 ## Configuration
 The plugin allows you to customize the default folder for new diagrams (where they go when you aren't in a folder already) and the default theme for new diagrams.
 ## Acknowledgments
