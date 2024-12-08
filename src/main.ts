@@ -8,7 +8,8 @@ import {
     Setting,
     WorkspaceLeaf,
     TFolder,
-    Menu
+    ItemView,
+    ViewStateResult
 } from 'obsidian';
 
 interface DrawioPluginSettings {
@@ -20,6 +21,8 @@ const DEFAULT_SETTINGS: DrawioPluginSettings = {
     theme: 'system',
     defaultFolder: 'Diagrams'
 };
+
+const VIEW_TYPE_DRAWIO = 'drawio-view';
 
 export default class DrawioPlugin extends Plugin {
     settings: DrawioPluginSettings;
@@ -34,11 +37,11 @@ export default class DrawioPlugin extends Plugin {
 
         // Register custom view for .drawio files
         this.registerView(
-            'drawio-view',
+            VIEW_TYPE_DRAWIO,
             (leaf) => new DrawioView(leaf, this)
         );
 
-        // Add ribbon icon with a valid Obsidian icon
+        // Add ribbon icon
         this.addRibbonIcon('workflow', 'New Draw.io Diagram', () => {
             this.createNewDiagram();
         });
@@ -69,7 +72,7 @@ export default class DrawioPlugin extends Plugin {
         );
 
         // Register view type for .drawio extension
-        this.registerExtensions(['drawio'], 'drawio-view');
+        this.registerExtensions(['drawio'], VIEW_TYPE_DRAWIO);
 
         // Add settings tab
         this.addSettingTab(new DrawioSettingTab(this.app, this));
@@ -86,11 +89,9 @@ export default class DrawioPlugin extends Plugin {
             return '';
         }
 
-        // Check if folder exists
         const folder = this.app.vault.getAbstractFileByPath(folderPath);
         
         if (!folder) {
-            // Create folder if it doesn't exist
             try {
                 await this.app.vault.createFolder(folderPath);
                 new Notice(`Created default diagrams folder: ${folderPath}`);
@@ -105,7 +106,6 @@ export default class DrawioPlugin extends Plugin {
     }
 
     private handleSystemThemeChange() {
-        // Notify all open Draw.io views to update their theme
         this.app.workspace.iterateAllLeaves(leaf => {
             if (leaf.view instanceof DrawioView) {
                 leaf.view.updateTheme();
@@ -126,7 +126,6 @@ export default class DrawioPlugin extends Plugin {
 
     async saveSettings() {
         await this.saveData(this.settings);
-        // Update theme for all open Draw.io views
         this.app.workspace.iterateAllLeaves(leaf => {
             if (leaf.view instanceof DrawioView) {
                 leaf.view.updateTheme();
@@ -148,25 +147,19 @@ export default class DrawioPlugin extends Plugin {
 
     async createNewDiagram(targetFolderPath?: string) {
         try {
-            // Determine target folder
             let folderPath = '';
             
             if (targetFolderPath) {
-                // Use explicitly provided folder path (for right-click menu)
                 folderPath = targetFolderPath;
             } else {
-                // Try to get current folder context from active file
                 const activeLeaf = this.app.workspace.activeLeaf;
                 const activeView = activeLeaf?.view;
                 
                 if (activeView instanceof MarkdownView && activeView.file?.parent) {
-                    // If we have an active file, use its parent folder
                     folderPath = activeView.file.parent.path;
                 } else {
-                    // Check if we're in a file explorer view
                     const fileExplorer = this.app.workspace.getLeavesOfType('file-explorer')[0];
                     if (fileExplorer && fileExplorer.view) {
-                        // Get the currently visible folder in the file explorer
                         // @ts-ignore - Accessing internal API
                         const currentFolder = fileExplorer.view.openFolder;
                         if (currentFolder) {
@@ -175,38 +168,28 @@ export default class DrawioPlugin extends Plugin {
                     }
                 }
                 
-                // If still no folder path, use default folder
                 if (!folderPath) {
                     folderPath = await this.ensureDefaultFolderExists();
                 }
             }
             
-            // Generate unique filename with path
             const fileName = `${folderPath ? folderPath + '/' : ''}diagram-${Date.now()}.drawio`;
-            
-            // Create file with empty diagram template
             const newFile = await this.app.vault.create(fileName, this.EMPTY_DIAGRAM);
-            
-            // Create new leaf in the current window
             const leaf = this.app.workspace.getLeaf(true);
             
-            // Ensure the leaf is ready
             if (!(leaf instanceof WorkspaceLeaf)) {
                 throw new Error('Could not create new leaf');
             }
             
-            // Set the view to our drawio-view and open the file
             await leaf.setViewState({
-                type: 'drawio-view',
+                type: VIEW_TYPE_DRAWIO,
                 state: {
                     file: newFile.path
                 }
             });
             
-            // Ensure the new leaf is active
             this.app.workspace.setActiveLeaf(leaf, { focus: true });
-            
-            new Notice('New diagram created and opened');
+            new Notice('New diagram created');
             
         } catch (error) {
             console.error('Error creating new diagram:', error);
@@ -215,14 +198,28 @@ export default class DrawioPlugin extends Plugin {
     }
 }
 
-class DrawioView extends MarkdownView {
+class DrawioView extends ItemView {
     private iframe: HTMLIFrameElement;
     private hasUnsavedChanges: boolean = false;
+    private lastSaveTime: number = 0;
+    private file: TFile | null = null;
     plugin: DrawioPlugin;
 
-    constructor(leaf: any, plugin: DrawioPlugin) {
+    constructor(leaf: WorkspaceLeaf, plugin: DrawioPlugin) {
         super(leaf);
         this.plugin = plugin;
+    }
+
+    getViewType(): string {
+        return VIEW_TYPE_DRAWIO;
+    }
+
+    getDisplayText(): string {
+        return this.file?.basename || 'Draw.io Diagram';
+    }
+
+    async setFile(file: TFile) {
+        this.file = file;
     }
 
     async onOpen() {
@@ -232,7 +229,6 @@ class DrawioView extends MarkdownView {
         this.iframe.style.height = '100%';
         this.iframe.style.border = 'none';
         
-        // Updated configuration parameters with theme
         this.iframe.src = 'https://embed.diagrams.net/?' + new URLSearchParams({
             embed: '1',
             spin: '1',
@@ -258,7 +254,6 @@ class DrawioView extends MarkdownView {
 
     updateTheme() {
         const currentTheme = this.plugin.getCurrentTheme();
-        // Send theme update message to Draw.io
         this.iframe?.contentWindow?.postMessage(JSON.stringify({
             action: 'theme',
             value: currentTheme
@@ -277,9 +272,15 @@ class DrawioView extends MarkdownView {
                     break;
                     
                 case 'save':
+                    const currentTime = Date.now();
                     await this.saveDiagram(message.xml);
                     this.hasUnsavedChanges = false;
-                    new Notice('Diagram saved successfully');
+                    
+                    // Only show save notice if more than 2 seconds have passed since last save
+                    if (currentTime - this.lastSaveTime > 2000) {
+                        new Notice('Diagram saved');
+                        this.lastSaveTime = currentTime;
+                    }
                     break;
                     
                 case 'exit':
@@ -344,6 +345,15 @@ class DrawioView extends MarkdownView {
 
     async onClose() {
         window.removeEventListener('message', this.handleMessage.bind(this));
+    }
+
+    async setState(state: any, result: ViewStateResult): Promise<void> {
+        if (state.file) {
+            const file = this.app.vault.getAbstractFileByPath(state.file);
+            if (file instanceof TFile) {
+                await this.setFile(file);
+            }
+        }
     }
 }
 
