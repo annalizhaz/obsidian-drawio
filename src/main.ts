@@ -12,6 +12,21 @@ import {
     ViewStateResult
 } from 'obsidian';
 
+/**
+ * Main plugin file for Draw.io integration with Obsidian.
+ * Provides functionality to create, edit, and manage Draw.io diagrams within Obsidian.
+ * 
+ * Features:
+ * - Create and edit Draw.io diagrams within Obsidian
+ * - Theme synchronization with Obsidian/system
+ * - Automatic saving and change tracking
+ * - Custom folder management for new diagrams
+ */
+
+/**
+ * Configuration interface for the Draw.io plugin.
+ * Defines available settings that can be modified by users.
+ */
 interface DrawioPluginSettings {
     theme: 'system' | 'light' | 'dark';
     defaultFolder: string;
@@ -24,10 +39,25 @@ const DEFAULT_SETTINGS: DrawioPluginSettings = {
 
 const VIEW_TYPE_DRAWIO = 'drawio-view';
 
+/**
+ * Main plugin class that handles core functionality, settings management,
+ * and integration with Obsidian's API.
+ * 
+ * Manages:
+ * - Plugin initialization and cleanup
+ * - Settings management
+ * - Theme detection and synchronization
+ * - File creation and management
+ * - View registration and handling
+ */
 export default class DrawioPlugin extends Plugin {
     settings: DrawioPluginSettings;
     private systemDarkModeQuery: MediaQueryList;
 
+    /**
+     * Loads plugin settings from storage and initializes core functionality.
+     * Sets up event listeners, registers views, and configures UI elements.
+     */
     async onload() {
         await this.loadSettings();
 
@@ -78,10 +108,17 @@ export default class DrawioPlugin extends Plugin {
         this.addSettingTab(new DrawioSettingTab(this.app, this));
     }
 
+    /**
+     * Cleans up plugin resources and event listeners.
+     */
     onunload() {
         this.systemDarkModeQuery.removeListener(this.handleSystemThemeChange.bind(this));
     }
 
+    /**
+     * Ensures the configured default folder exists, creating it if necessary.
+     * @returns The path to the default folder, or empty string if creation fails
+     */
     private async ensureDefaultFolderExists(): Promise<string> {
         const folderPath = this.settings.defaultFolder;
         
@@ -105,6 +142,10 @@ export default class DrawioPlugin extends Plugin {
         return folderPath;
     }
 
+
+    /**
+     * Handles system theme changes and updates all open Draw.io views.
+     */
     private handleSystemThemeChange() {
         this.app.workspace.iterateAllLeaves(leaf => {
             if (leaf.view instanceof DrawioView) {
@@ -113,6 +154,10 @@ export default class DrawioPlugin extends Plugin {
         });
     }
 
+    /**
+     * Gets the current theme based on settings and system preferences.
+     * @returns 'dark' or 'light' based on current settings and system state
+     */
     getCurrentTheme(): 'dark' | 'light' {
         if (this.settings.theme === 'system') {
             return this.systemDarkModeQuery.matches ? 'dark' : 'light';
@@ -133,6 +178,13 @@ export default class DrawioPlugin extends Plugin {
         });
     }
 
+    /**
+     * Template for new Draw.io diagrams.
+     * Creates an empty diagram with default settings:
+     * - Grid enabled
+     * - Page view disabled (sketch mode)
+     * - Default scaling and dimensions
+     */
     private EMPTY_DIAGRAM = `<?xml version="1.0" encoding="UTF-8"?>
 <mxfile host="Electron" modified="2024-12-07T12:00:00.000Z" agent="Obsidian Draw.io" version="21.1.2">
   <diagram id="default-diagram" name="Page-1">
@@ -145,6 +197,10 @@ export default class DrawioPlugin extends Plugin {
   </diagram>
 </mxfile>`;
 
+    /**
+     * Creates a new Draw.io diagram file.
+     * @param targetFolderPath Optional path where the diagram should be created
+     */
     async createNewDiagram(targetFolderPath?: string) {
         try {
             let folderPath = '';
@@ -198,6 +254,11 @@ export default class DrawioPlugin extends Plugin {
     }
 }
 
+/**
+ * Custom view class for handling Draw.io editor interface.
+ * Manages communication between Obsidian and Draw.io, handles file operations,
+ * and maintains editor state.
+ */
 class DrawioView extends ItemView {
     private iframe: HTMLIFrameElement;
     private hasUnsavedChanges: boolean = false;
@@ -222,6 +283,9 @@ class DrawioView extends ItemView {
         this.file = file;
     }
 
+    /**
+     * Sets up the iframe containing the Draw.io editor and initializes event listeners.
+     */
     async onOpen() {
         const currentTheme = this.plugin.getCurrentTheme();
         this.iframe = document.createElement('iframe');
@@ -253,7 +317,9 @@ class DrawioView extends ItemView {
             }
         });
     }
-
+    /**
+     * Updates the editor theme based on current settings.
+     */
     updateTheme() {
         const currentTheme = this.plugin.getCurrentTheme();
         this.iframe?.contentWindow?.postMessage(JSON.stringify({
@@ -262,6 +328,10 @@ class DrawioView extends ItemView {
         }), '*');
     }
 
+    /**
+     * Handles messages received from the Draw.io editor.
+     * @param event MessageEvent from the editor iframe
+     */
     private async handleMessage(event: MessageEvent) {
         if (event.origin !== 'https://embed.diagrams.net') return;
 
@@ -305,6 +375,10 @@ class DrawioView extends ItemView {
         }
     }
 
+    /**
+     * Loads diagram content into the editor.
+     * Reads file content and sends it to the Draw.io iframe.
+     */
     private async loadDiagram() {
         try {
             if (!this.file) return;
@@ -330,6 +404,9 @@ class DrawioView extends ItemView {
         }
     }
 
+    /**Saves diagram content to the file.
+    * @param xml The diagram content in XML format
+    */
     private async saveDiagram(xml: string) {
         try {
             if (!this.file) return;
@@ -359,6 +436,12 @@ class DrawioView extends ItemView {
     }
 }
 
+/**
+ * Settings tab class for the Draw.io plugin.
+ * Provides UI for configuring plugin settings:
+ * - Theme selection (system/light/dark)
+ * - Default folder path for new diagrams
+ */
 class DrawioSettingTab extends PluginSettingTab {
     plugin: DrawioPlugin;
 

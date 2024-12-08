@@ -17,3 +17,6 @@ node_modules/
 
 # Customized configuration
 deploy-config.js
+
+# Documentation
+docs/
