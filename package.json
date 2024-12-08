@@ -1,27 +1,27 @@
 {
-  "name": "obsidian-drawio",
-  "version": "1.0.0",
-  "description": "Draw.io integration for Obsidian",
-  "main": "main.js",
-  "scripts": {
-    "dev": "rollup --config rollup.config.js -w",
-    "build": "rollup --config rollup.config.js",
-    "clean": "rimraf main.js",
-    "clean-build": "npm run clean && npm run build",
-    "deploy": "node deploy.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
-  "devDependencies": {
-    "@rollup/plugin-commonjs": "^25.0.0",
-    "@rollup/plugin-node-resolve": "^15.0.0",
-    "@rollup/plugin-typescript": "^11.0.0",
-    "@types/node": "^20.0.0",
-    "obsidian": "^1.4.0",
-    "rimraf": "^6.0.1",
-    "rollup": "^3.0.0",
-    "tslib": "^2.6.0",
-    "typescript": "^5.0.0"
+    "name": "obsidian-drawio",
+    "version": "1.0.0",
+    "description": "Draw.io integration for Obsidian",
+    "main": "main.js",
+    "scripts": {
+      "dev": "rollup --config rollup.config.js -w",
+      "build": "rollup --config rollup.config.js",
+      "clean": "rimraf main.js",
+      "clean-build": "npm run clean && npm run build",
+      "deploy": "node deploy.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+      "@rollup/plugin-commonjs": "^25.0.0",
+      "@rollup/plugin-node-resolve": "^15.0.0",
+      "@rollup/plugin-typescript": "^11.0.0",
+      "@types/node": "^20.0.0",
+      "obsidian": "^1.4.0",
+      "rimraf": "^6.0.1",
+      "rollup": "^3.0.0",
+      "tslib": "^2.6.0",
+      "typescript": "^5.0.0"
+    }
   }
-}

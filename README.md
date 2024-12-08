@@ -37,6 +37,9 @@ obsidian-drawio/
 ├── tsconfig.json               # TypeScript configuration
 ├── data.json                   # Plugin configuration
 ├── version.json                # Plugin version information
+├── deploy-config.template.js   # Configuration template for deployment
+├── deploy-config.js            # Configuration for deployment
+├── deploy.js                   # Deployment script
 ├── .gitignore                  # Git ignore rules
 └── README.md                   # Project documentation
 ```

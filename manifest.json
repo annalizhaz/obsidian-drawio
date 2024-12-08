@@ -4,6 +4,6 @@
     "version": "1.0.0",
     "minAppVersion": "0.15.0",
     "description": "Integrate Draw.io diagram editor into Obsidian",
-    "author": "Your Name",
+    "author": "annalizhaz",
     "isDesktopOnly": false
 }
