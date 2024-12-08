@@ -10,10 +10,12 @@ This repository contains the source code for a plugin that integrates the [Draw.
 ## Installation
 1. Clone the repository: `git clone https://github.com/your-username/obsidian-drawio.git`
 2. Navigate to the project directory: `cd obsidian-drawio`
-3. Install the dependencies: `npm install`
-4. Modify the deploy-config.template.js to reflect the location of your Obsidian vault and your operating system.
-5. Copy the deploy-config.template.js to deploy-config.js via the commandline: `cp deploy-config.template.js deploy-config.js`
-6. To just the build the plugin, run `npm run clean-build`. Otherwise to build and deploy the plugin to your plugin directory, run `npm run deploy`.
+3. Modify the deploy-config.template.js to reflect the location of your Obsidian vault and your operating system.
+4. Copy the deploy-config.template.js to deploy-config.js via the commandline: `cp deploy-config.template.js deploy-config.js`
+5. Install the dependencies: `npm install`
+6. To build the plugin, run `npm run build`
+7. To deploy the plugin to your plugin directory specified earlier, run `npm run deploy`
+Note: `npm run clean-install` will delete the files created during installation before running the install, `npm run clean-build` will delete the build files before running the build. and `npm run clean-deploy` will run a clean install and clean build before deploying.
 ## Usage
 1. Open Obsidian and navigate to Community Plugins within the settings.
 2. Enable "Draw.io Integration" plugin under the "Insalled" heading (you may need to refresh the available plugins list).

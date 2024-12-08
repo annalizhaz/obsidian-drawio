@@ -42,10 +42,6 @@ try {
 // Files to copy
 const files = ['main.js', 'manifest.json', 'data.json', 'versions.json'];
 
-// First run the build
-console.log('Building plugin...');
-execSync('npm run clean-build', { stdio: 'inherit' });
-
 // Then copy files
 console.log('Deploying to:', pluginDir);
 for (const file of files) {
